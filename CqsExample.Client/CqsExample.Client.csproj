@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="AddFooCommandHandler.cs" />
     <Compile Include="AddFooCommandParameter.cs" />
+    <Compile Include="Extensions\OpenGenericExtension.cs" />
     <Compile Include="Foo.cs" />
     <Compile Include="GetAllFooQuery.cs" />
     <Compile Include="GetAllFooQueryHandler.cs" />

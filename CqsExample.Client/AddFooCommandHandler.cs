@@ -13,7 +13,6 @@ namespace CqsExample.Client
         private readonly IRepository<Foo> _repository;
 
         public AddFooCommandHandler(IRepository<Foo> repository)
-            :base()
         {
             _repository = repository;
         }
