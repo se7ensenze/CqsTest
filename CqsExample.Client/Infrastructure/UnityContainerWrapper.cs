@@ -20,11 +20,12 @@ namespace CqsExample.Client.Infrastructure
             _container.AddExtension(new Diagnostic());
             _container.AddNewExtension<OpenGenericExtension>()
                 .Configure<IOpenGenericExtension>()
-                .RegisterClosedImpl(typeof(ICommandHandler<>), typeof(CommandHandler<>))
-                .RegisterClosedImpl(typeof(IQueryHandler<,>), typeof(QueryHandler<,>)); 
+                .RegisterTypes(typeof(ICommandHandler<>), typeof(CommandHandler<>))
+                .RegisterTypes(typeof(IQueryHandler<,>), typeof(QueryHandler<,>))
+                .RegisterTypes(typeof(IRepository<>), TypeLifetime.Singleton); 
 
             _container.RegisterInstance<IContainer>(this, InstanceLifetime.Singleton);
-            _container.RegisterType<IRepository<Foo>, FooRepository>(TypeLifetime.Singleton);
+            //_container.RegisterType<IRepository<Foo>, FooRepository>(TypeLifetime.Singleton);
             _container.RegisterType<ICommandDispatcher, CommandDispatcher>();
             _container.RegisterType<IQueryDispatcher, QueryDispatcher>();
 

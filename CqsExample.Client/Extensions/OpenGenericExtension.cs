@@ -6,12 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Unity;
 using Unity.Extension;
+using Unity.Lifetime;
 
 namespace CqsExample.Client.Extensions
 {
     public class OpenGenericExtension : UnityContainerExtension, IOpenGenericExtension
     {
-        public IOpenGenericExtension RegisterClosedImpl(Type interefaceType, Type baseClassType)
+        public IOpenGenericExtension RegisterTypes(Type interefaceType, Type baseClassType, ITypeLifetimeManager lifeTimeManager)
         {
             //System.Diagnostics.Debug.Print($"Target BaseType := {baseClassType.FullName}");
             //System.Diagnostics.Debug.Print($"Target BaseType GenericTypeDefination := {baseClassType.GetGenericTypeDefinition()}");
@@ -36,7 +37,7 @@ namespace CqsExample.Client.Extensions
 
                     Container.RegisterType(t.BaseType.GetInterfaces()
                             .Where(inf => inf.GetGenericTypeDefinition() == interefaceType)
-                            .First(), t);
+                            .First(), t, lifeTimeManager);
                 });
 
             //var typeList = typeof(OpenGenericExtension).Assembly
@@ -63,6 +64,31 @@ namespace CqsExample.Client.Extensions
             return this;
         }
 
+        public IOpenGenericExtension RegisterTypes(Type implementedInterfaceType, ITypeLifetimeManager lifeTimeManager)
+        {
+            typeof(OpenGenericExtension).Assembly
+               .DefinedTypes
+               .Where(t => t.ImplementedInterfaces.Any(i => i.IsGenericType && 
+                    i.GetGenericTypeDefinition() == implementedInterfaceType))
+               .ToList()
+               .ForEach(t => {
+                   Container.RegisterType(t.ImplementedInterfaces.First(i => i.GetGenericTypeDefinition() == implementedInterfaceType), 
+                       t, lifeTimeManager);
+               });
+
+            return this;
+        }
+
+        public IOpenGenericExtension RegisterTypes(Type interefaceType, Type baseClassType)
+        {
+            return RegisterTypes(interefaceType, baseClassType, lifeTimeManager: null);
+        }
+
+        public IOpenGenericExtension RegisterTypes(Type implementedInterfaceType)
+        {
+            return RegisterTypes(implementedInterfaceType, lifeTimeManager: null);
+        }
+
         protected override void Initialize()
         {
             
@@ -71,6 +97,9 @@ namespace CqsExample.Client.Extensions
 
     public interface IOpenGenericExtension : IUnityContainerExtensionConfigurator
     {
-        IOpenGenericExtension RegisterClosedImpl(Type interefaceType, Type baseClassType);
+        IOpenGenericExtension RegisterTypes(Type interefaceType, Type baseClassType);
+        IOpenGenericExtension RegisterTypes(Type interefaceType, Type baseClassType, ITypeLifetimeManager lifeTimeManager);
+        IOpenGenericExtension RegisterTypes(Type implementedInterfaceType);
+        IOpenGenericExtension RegisterTypes(Type implementedInterfaceType, ITypeLifetimeManager lifeTimeManager);
     }
 }
